@@ -739,6 +739,14 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
   <script>
   // Constants
+  const SOUND_TO_NOTE = {
+    'white': 'C4',
+    'pink': 'C4',
+    'brown': 'C4', 
+    'violet': 'C4',
+    'blue': 'C4'
+  };
+  
   const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
   const OCTAVES = [3, 4, 5];
   const SOUNDS = ['sine', 'triangle', 'sawtooth', 'square', 'white', 'pink', 'brown', 'violet', 'blue'];
@@ -1388,15 +1396,18 @@
   // Adjusted startSequencer function to handle adjusted timing
   function startSequencer() {
     try {
-      const bpm = parseInt(document.getElementById('bpm').value);
+      let bpm = parseInt(document.getElementById('bpm').value);
+      // Add hard validation for BPM range
+      bpm = Math.max(60, Math.min(300, bpm)); // Clamp between 60-300
+      
       // Ensure positive BPM value
-      const adjustedBpm = Math.max(bpm / (1 + (barMultiplier - 1) * 0.5), 1);
+      const adjustedBpm = Math.max(bpm / (1 + (barMultiplier - 1) * 0.5), 60);
       
       // Stop any existing transport
       Tone.Transport.stop();
       Tone.Transport.cancel();
       
-      // Set new BPM
+      // Set new BPM with validation
       Tone.Transport.bpm.value = adjustedBpm;
       
       // Create sequences
@@ -1589,7 +1600,10 @@
   document.getElementById('playPause').addEventListener('click', playPauseAction);
   
   document.getElementById('bpm').addEventListener('input', () => {
-    const bpm = parseInt(document.getElementById('bpm').value);
+    let bpm = parseInt(document.getElementById('bpm').value);
+    // Add hard validation for BPM range
+    bpm = Math.max(60, Math.min(300, bpm)); // Clamp between 60-300
+    
     Tone.Transport.bpm.value = bpm;
     if (isPlaying) {
       stopSequencer();
@@ -1619,7 +1633,8 @@
     const bpmInput = document.getElementById('bpm');
     const playButton = document.getElementById('playPause');
     
-    // Set initial value with padding
+    // Set initial value with validation and padding
+    lastValidBpm = Math.max(60, Math.min(300, lastValidBpm));
     bpmInput.value = lastValidBpm.toString().padStart(3, '0');
     
     bpmInput.addEventListener('input', function(e) {
@@ -1631,15 +1646,12 @@
       // Handle single digit input
       if (value.length === 1) {
         if (cursorPosition === 1) {
-          // Replace first digit
           value = value.padStart(3, '0');
         } else if (cursorPosition === 2) {
-          // Replace second digit
           value = lastValidBpm.toString().padStart(3, '0').slice(0, 1) + 
                  value + 
                  lastValidBpm.toString().padStart(3, '0').slice(2);
         } else if (cursorPosition === 3) {
-          // Replace third digit
           value = lastValidBpm.toString().padStart(3, '0').slice(0, 2) + value;
         }
       }
@@ -1654,14 +1666,9 @@
       
       let numValue = parseInt(value);
       
-      // Validate range
-      if (numValue < 60) {
-        numValue = 60;
-        value = '060';
-      } else if (numValue > 300) {
-        numValue = 300;
-        value = '300';
-      }
+      // Hard validate range
+      numValue = Math.max(60, Math.min(300, numValue));
+      value = numValue.toString().padStart(3, '0');
       
       // Update input value
       this.value = value;
