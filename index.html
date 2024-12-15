@@ -1,4 +1,4 @@
-<html><head><base href="https://3beatproblem.websim.io/"><title>3 Beat Problem</title>
+<html><head><title>3 Beat Problem</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&amp;family=Roboto:wght@300;400;700&amp;display=swap" rel="stylesheet">
   <style>
     :root {
@@ -10,8 +10,8 @@
       --control-bg: rgba(255, 255, 255, 0.12);
       --slider-bg: rgba(255, 255, 255, 0.25);
       --select-bg: #1a1f2e;
-      --success-color: #4CAF50;
-      --error-color: #f44336;
+      --success-color: var(--primary-color);
+      --error-color: var(--secondary-color);
     }
   
     * {
@@ -29,48 +29,53 @@
       align-items: center;
       min-height: 100vh;
       margin: 0;
+      padding: 0;
       overflow-x: hidden;
+      width: 100%;
     }
   
     .container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-      background: rgba(255, 255, 255, 0.07);
-      padding: 20px;
-      border-radius: 20px;
-      box-shadow: 0 8px 32px rgba(0, 255, 255, 0.15);
-      backdrop-filter: blur(15px);
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+      width: 100%;
       max-width: 1200px;
-      width: 95%;
-      margin: 20px auto;
+      margin: 0 auto;
+      padding: 1rem;
+      position: relative;
     }
   
     .header {
-      grid-column: 1 / -1;
+      flex: 1 0 100%;
+      margin: 0 0 2rem 0;
+      padding: 1.5rem;
+      padding-top: 0.5rem;  /* Reduce top padding */
+      gap: 1.5rem;         /* Add consistent gap */
+      border-radius: 20px;
+      background: rgba(0, 0, 0, 0.3);
       display: flex;
       justify-content: space-between;
-      align-items: center;
-      padding: 20px 30px;
-      margin: -30px -30px 30px -30px;
-      background: rgba(0, 0, 0, 0.3);
-      border-radius: 20px 20px 0 0;
+      align-items: flex-start;
     }
   
     h1 {
+      color: var(--primary-color);
+      text-shadow: 0 0 10px var(--primary-color);
       font-family: 'Orbitron', sans-serif;
       font-size: 28px;
       font-weight: 700;
       letter-spacing: 2px;
       text-transform: uppercase;
-      color: var(--primary-color);
-      text-shadow: 0 0 10px var(--primary-color);
     }
   
     .bpm-control {
       display: flex;
       align-items: center;
       gap: 10px;
+      margin-top: auto;    
     }
   
     .bpm-control label {
@@ -79,22 +84,56 @@
       font-family: 'Orbitron', sans-serif;
     }
   
+    #bpm {
+      color: var(--primary-color);
+      width: 60px;
+      text-align: center;
+      background: var(--select-bg);
+      border: 1px solid rgba(0, 255, 240, 0.3);
+      padding: 4px;
+      font-size: 16px;
+      border-radius: 4px;
+      transition: all 0.3s ease;
+    }
+  
+    #bpm:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 10px rgba(0, 255, 240, 0.2);
+    }
+  
+    #bpm.invalid {
+      color: var(--secondary-color);
+      border-color: var(--secondary-color);
+    }
+  
     #playPause {
       min-width: unset;
-      width: 40px;
-      height: 40px;
-      padding: 0;
-      border-radius: 50%;
+      width: auto;
+      height: auto;
+      padding: 8px;
+      border-radius: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: var(--primary-color);
-      font-size: 20px;
+      background: none;
+      border: none;
+      color: var(--primary-color);
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
   
     #playPause:hover {
       transform: scale(1.1);
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+      color: var(--secondary-color);
+      box-shadow: none;
+    }
+  
+    #playPause:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+      color: var(--text-color);
     }
   
     .play-icon, .pause-icon {
@@ -120,26 +159,28 @@
   
     .export-button:hover {
       background: var(--primary-color);
-      transform: scale(1.05);
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
     }
   
     .sequencer {
-      min-width: 280px;
-      height: auto;
-      aspect-ratio: 1;
-      padding: 25px;
+      flex: 0 1 300px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      gap: 20px;
+      gap: 1rem;
+      margin: 0;
+      padding: 1rem;
     }
   
     .circle-container {
-      width: 180px;
-      height: 180px;
+      width: min(180px, 30vw);
+      height: min(180px, 30vw);
+      aspect-ratio: 1;
       margin: 0 auto;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transform: translateZ(0);
     }
   
     .circle {
@@ -219,8 +260,8 @@
       width: 20px;
       height: 20px;
       background: linear-gradient(135deg, 
-        rgba(255,52,179,0.9), 
-        rgba(255,105,180,0.9)
+        var(--secondary-color) 0%, 
+        var(--secondary-color) 100%
       );
       border-radius: 50%;
       position: absolute;
@@ -262,12 +303,12 @@
   
     .dot.active {
       background: linear-gradient(135deg, 
-        rgba(0,255,240,0.95), 
-        rgba(0,255,204,0.95)
+        var(--primary-color) 0%, 
+        var(--primary-color) 100%
       );
       box-shadow: 
-        0 0 35px rgba(0,255,240,0.6),
-        0 0 50px rgba(0,255,240,0.4),
+        0 0 35px var(--primary-color),
+        0 0 50px var(--primary-color),
         inset 0 0 20px rgba(255,255,255,0.9);
       animation: activePulse 2s ease-in-out infinite;
     }
@@ -277,11 +318,13 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      border-radius: 50%;
-      width: 100%;  /* This ensures it fits within the circle container */
+      width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 1;  /* Place it behind other elements */
+      z-index: 1;  
+      display: block;
+      margin: auto;
+      background: transparent;
     }
   
     .volume-control {
@@ -301,6 +344,52 @@
     .volume-control input[type="range"] {
       width: 100px;
       height: 4px;
+    }
+  
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 150px;
+      height: 6px;
+      background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+      border-radius: 3px;
+    }
+  
+    /* Update the slider thumb styles to use magenta instead of yellow */
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--secondary-color);
+      border: 2px solid var(--primary-color);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+  
+    /* For Firefox */
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--secondary-color);
+      border: 2px solid var(--primary-color);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+  
+    /* For Edge/IE */
+    input[type="range"]::-ms-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--secondary-color);
+      border: 2px solid var(--primary-color);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+      cursor: pointer;
+      transition: all 0.3s ease;
     }
   
     @keyframes pulseMain {
@@ -354,9 +443,9 @@
       width: 8px;
       height: 8px;
       position: absolute;
-      left: 50%;  /* Center point */
-      top: 50%;   /* Center point */
-      transform-origin: 0 0; /* Set transform origin to top-left */
+      left: 50%;  
+      top: 50%;   
+      transform-origin: 0 0; 
       border-radius: 50%;
       background: radial-gradient(
         circle at center,
@@ -380,17 +469,17 @@
     }
   
     label {
+      color: var(--tertiary-color);
       font-size: 12px;
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: var(--tertiary-color);
       font-family: 'Orbitron', sans-serif;
     }
   
-    select, input[type="number"] {
-      background-color: var(--select-bg);
-      color: var(--text-color);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+    select, input[type="number"], #bpm {
+      color: var(--primary-color);
+      background: var(--select-bg);
+      border: 1px solid rgba(0, 255, 240, 0.3);
       padding: 8px 12px;
       border-radius: 8px;
       font-size: 14px;
@@ -398,41 +487,22 @@
     }
   
     select:hover, input[type="number"]:hover {
-      border-color: var(--primary-color);
+      border-color: var(--secondary-color);
     }
   
     .slider-container {
-      grid-column: 1 / -1;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      padding: 15px;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 15px;
-      margin-top: 10px;
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 0;
+      min-width: 200px;
     }
   
     .slider-group {
       display: flex;
       flex-direction: column;
-      align-items: center;
       gap: 5px;
-    }
-  
-    input[type="range"] {
-      width: 150px;
-      height: 6px;
-      background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-      border-radius: 3px;
-    }
-  
-    input[type="range"]::-webkit-slider-thumb {
-      width: 16px;
-      height: 16px;
-      background: var(--tertiary-color);
-      border: 2px solid var(--primary-color);
-      box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
-      -webkit-appearance: none;
     }
   
     .notification {
@@ -455,49 +525,81 @@
   
     .notification.success {
       background-color: var(--success-color);
+      color: var(--bg-color);
     }
   
     .notification.error {
       background-color: var(--error-color);
+      color: var(--bg-color);
     }
   
-    @media (max-width: 1200px) {
+    .bar-multiplier {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: 15px;
+    }
+  
+    .bar-multiplier label {
+      font-size: 14px;
+      font-family: 'Orbitron', sans-serif;
+      color: var(--tertiary-color);
+    }
+  
+    .bar-multiplier select {
+      width: 50px;
+      color: var(--primary-color);
+      background: var(--select-bg);
+      border: 1px solid rgba(0, 255, 240, 0.3);
+      padding: 4px;
+      font-size: 16px;
+      border-radius: 4px;
+      font-family: 'Orbitron', sans-serif;
+      transition: all 0.3s ease;
+    }
+  
+    .bar-multiplier select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 10px rgba(0, 255, 240, 0.2);
+    }
+  
+    @media (max-width: 1024px) {
       .container {
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        padding: 20px;
+        gap: 1.5rem;
+        padding: 0.75rem;
       }
       
-      .circle-container {
-        width: 150px;
-        height: 150px;
+      .sequencer {
+        flex: 0 1 280px;
       }
     }
   
     @media (max-width: 768px) {
-      .slider-container {
-        grid-template-columns: 1fr;
-        gap: 15px;
-      }
-      
-      input[type="range"] {
-        width: 200px;
-      }
-      
-      .container {
-        grid-template-columns: 1fr;
-        padding: 15px;
-      }
-      
       .header {
         flex-direction: column;
-        gap: 15px;
-        text-align: center;
-        padding: 15px;
+        gap: 20px;
+      }
+      
+      .slider-container {
+        width: 100%;
       }
       
       .sequencer {
-        min-width: unset;
         width: 100%;
+        max-width: 320px;
+      }
+    }
+  
+    @media (max-width: 480px) {
+      .container {
+        width: 98%;
+        padding: 8px;
+        margin: 5px auto;
+      }
+      
+      .circle-container {
+        width: min(140px, 45vw);
+        height: min(140px, 45vw);
       }
     }
   </style>
@@ -505,26 +607,55 @@
   <body>
   <div class="container">
     <div class="header">
-      <h1>3 Beat Problem</h1>
-      <div class="bpm-control">
-        <label for="bpm">BPM:</label>
-        <input type="number" id="bpm" min="60" max="240" value="120" step="1">
-        <button id="playPause">
-          <span class="play-icon show">▶</span>
-          <span class="pause-icon">⏸</span>
-        </button>
-        <button id="exportMidi" class="export-button">Export MIDI</button>
+      <div class="header-left">
+        <h1>3 Beat Problem</h1>
+        <div class="bpm-control">
+          <label for="bpm">BPM:</label>
+          <input type="text" id="bpm" 
+                 inputmode="numeric" 
+                 pattern="[0-9]*" 
+                 min="60" 
+                 max="300" 
+                 value="120">
+          <div class="bar-multiplier">
+            <label for="barMultiplier">Bars:</label>
+            <select id="barMultiplier">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+            </select>
+          </div>
+          <button id="playPause" disabled>
+            <span class="play-icon show">▶</span>
+            <span class="pause-icon">⏸</span>
+          </button>
+          <button id="exportMidi" class="export-button">Export MIDI</button>
+        </div>
+      </div>
+      
+      <div class="slider-container">
+        <div class="slider-group">
+          <label for="velocityRandomization">Velocity Randomization:</label>
+          <input type="range" id="velocityRandomization" min="0" max="100" value="0" step="1">
+          <span id="velocityRandomizationValue" class="value-display">0%</span>
+        </div>
+        <div class="slider-group">
+          <label for="noteDuration">Note Duration:</label>
+          <input type="range" id="noteDuration" min="0" max="100" value="50" step="1">
+          <span id="noteDurationValue" class="value-display">50%</span>
+        </div>
       </div>
     </div>
   
     <div class="sequencer" id="sequencer1">
       <div class="circle-container">
         <div class="circle">
-    <div class="circle-inner-ring"></div>
-    <div class="circle-middle-ring"></div>
-    <div class="circle-outer-ring"></div>
-    <canvas id="spectrogram1" class="spectrogram" width="180" height="180"></canvas>
-  </div>
+          <div class="circle-inner-ring"></div>
+          <div class="circle-middle-ring"></div>
+          <div class="circle-outer-ring"></div>
+          <canvas id="spectrogram1" class="spectrogram" width="180" height="180"></canvas>
+        </div>
       </div>
       <div class="controls">
         <div class="control-group">
@@ -604,19 +735,6 @@
       </div>
     </div>
   
-    <div class="slider-container">
-      <div class="slider-group">
-        <label for="velocityRandomization">Velocity Randomization:</label>
-        <input type="range" id="velocityRandomization" min="0" max="100" value="0" step="1">
-        <span id="velocityRandomizationValue" class="value-display">0%</span>
-      </div>
-      <div class="slider-group">
-        <label for="noteDuration">Note Duration:</label>
-        <input type="range" id="noteDuration" min="0" max="100" value="50" step="1">
-        <span id="noteDurationValue" class="value-display">50%</span>
-      </div>
-    </div>
-  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
   <script>
   // Constants
@@ -624,20 +742,17 @@
   const OCTAVES = [3, 4, 5];
   const SOUNDS = ['sine', 'triangle', 'sawtooth', 'square', 'white', 'pink', 'brown', 'violet', 'blue'];
   const COLOR_NOISES = ['white', 'pink', 'brown', 'violet', 'blue'];
-  const SOUND_TO_NOTE = {
-    'white': 'C2', 
-    'pink': 'E2', 
-    'brown': 'G2', 
-    'violet': 'B2',
-    'blue': 'A2'
-  };
   
   const MIDI_NOTE_MAP = {
     'C': 60, 'C#': 61, 'D': 62, 'D#': 63, 'E': 64, 'F': 65,
     'F#': 66, 'G': 67, 'G#': 68, 'A': 69, 'A#': 70, 'B': 71
   };
   
-  // Add these utility functions for MIDI conversion
+  let savedNotes = ['C3', 'E4', 'G5']; // Store initial default notes
+  let bpmInputTimeout;
+  let lastValidBpm = 120;
+  let barMultiplier = 1; // Initialize bar multiplier
+  
   function noteToMidiNumber(note) {
     if (!note) return 60; // Default to middle C if note is undefined
     const noteName = note.slice(0, -1); // Remove octave
@@ -647,119 +762,80 @@
     return baseNote + ((octave - 4) * 12); // Adjust for octave
   }
   
-  function createMidiFile() {
-    // Create a new MIDI file with a single track
-    const midiData = {
-      header: {
-        format: 0, // Single track format
-        numTracks: 1,
-        ticksPerBeat: 480 // Standard MIDI PPQ
-      },
-      tracks: []
+  function generateMidiBlob(midiData) {
+    const writeVarLength = (value) => {
+      let bytes = [];
+      let v = value;
+      do {
+        let b = v & 0x7f;
+        v >>= 7;
+        if (v) b |= 0x80;
+        bytes.push(b);
+      } while (v);
+      return bytes;
     };
   
+    const writeMidiChunk = (type, data) => {
+      let chunk = [];
+      chunk.push(...type.split('').map(c => c.charCodeAt(0)));
+      let length = writeVarLength(data.length);
+      chunk.push(...length);
+      chunk.push(...data);
+      return chunk;
+    };
+  
+    const MThd = [
+      0x00, 0x00, 0x00, 0x06, // Header length
+      0x00, 0x00, // Format 0
+      0x00, 0x01, // One track
+      0x01, 0xe0  // 480 ticks per quarter note
+    ];
+  
+    let trackData = [];
+    
+    // Write tempo
     const bpm = parseInt(document.getElementById('bpm').value);
-    const track = [];
-    
-    // Add track name and tempo events
-    track.push({
-      deltaTime: 0,
-      type: 'trackName',
-      text: '3 Beat Pattern'
+    const microsecondsPerBeat = Math.floor(60000000 / bpm);
+    trackData.push(0x00); // Delta time
+    trackData.push(0xff, 0x51, 0x03); // Tempo meta event
+    trackData.push(
+      (microsecondsPerBeat >> 16) & 0xff,
+      (microsecondsPerBeat >> 8) & 0xff,
+      microsecondsPerBeat & 0xff
+    );
+  
+    // Write track events
+    midiData.tracks[0].forEach(event => {
+      // Write delta time
+      trackData.push(...writeVarLength(event.deltaTime));
+  
+      switch(event.type) {
+        case 'noteOn':
+          trackData.push(0x90 | event.channel);
+          trackData.push(event.noteNumber & 0x7f);
+          trackData.push(event.velocity & 0x7f);
+          break;
+        case 'noteOff':
+          trackData.push(0x80 | event.channel);
+          trackData.push(event.noteNumber & 0x7f);
+          trackData.push(event.velocity & 0x7f);
+          break;
+        case 'endOfTrack':
+          trackData.push(0xff, 0x2f, 0x00);
+          break;
+      }
     });
   
-    track.push({
-      deltaTime: 0,
-      type: 'setTempo',
-      microsecondsPerBeat: Math.floor(60000000 / bpm)
-    });
+    // Combine all chunks
+    let midiFile = [
+      ...writeMidiChunk('MThd', MThd),
+      ...writeMidiChunk('MTrk', trackData)
+    ];
   
-    // Calculate LCM for timing
-    const divisions = sequencers.map(seq => seq.divisions);
-    const lcm = divisions.reduce((a, b) => (a * b) / gcd(a, b));
-    
-    // Get note duration from slider
-    const noteDurationPercent = parseInt(document.getElementById('noteDuration').value);
-    const baseDuration = Math.floor(480 * (noteDurationPercent / 100));
-  
-    // Create timeline of all notes
-    const timeline = [];
-    
-    sequencers.forEach((seq, seqIndex) => {
-      const stepsPerBeat = lcm / seq.divisions;
-      const stepDuration = 480 / stepsPerBeat;
-      
-      seq.pattern.forEach((isActive, step) => {
-        if (isActive) {
-          // Handle note selection based on sound type
-          let note;
-          if (COLOR_NOISES.includes(seq.sound)) {
-            // Map noise sounds to predefined notes in octave 2
-            note = SOUND_TO_NOTE[seq.sound];
-          } else {
-            note = seq.note;
-          }
-          
-          // Convert note to MIDI number
-          const midiNote = noteToMidiNumber(note);
-          
-          // Apply velocity randomization
-          const velocityRandom = parseInt(document.getElementById('velocityRandomization').value);
-          const baseVelocity = 70;
-          const velocity = Math.floor(baseVelocity + 
-            (Math.random() * 2 - 1) * (velocityRandom / 100) * 57);
-          
-          const startTick = Math.floor(step * stepDuration);
-          
-          // Add note on event
-          timeline.push({
-            tick: startTick,
-            type: 'noteOn',
-            noteNumber: midiNote,
-            velocity: velocity,
-            channel: 0
-          });
-          
-          // Add note off event
-          timeline.push({
-            tick: startTick + baseDuration,
-            type: 'noteOff',
-            noteNumber: midiNote,
-            velocity: 0,
-            channel: 0
-          });
-        }
-      });
-    });
-  
-    // Sort timeline by tick
-    timeline.sort((a, b) => a.tick - b.tick);
-    
-    // Convert absolute ticks to delta time
-    let lastTick = 0;
-    timeline.forEach(event => {
-      const deltaTime = event.tick - lastTick;
-      track.push({
-        deltaTime: deltaTime,
-        type: event.type,
-        channel: event.channel,
-        noteNumber: event.noteNumber,
-        velocity: event.velocity
-      });
-      lastTick = event.tick;
-    });
-  
-    // Add end of track
-    track.push({
-      deltaTime: 0,
-      type: 'endOfTrack'
-    });
-  
-    midiData.tracks.push(track);
-    return midiData;
+    return new Blob([new Uint8Array(midiFile)], {type: 'audio/midi'});
   }
   
-  // Add event listener for the export button
+  // Add export button click handler
   document.getElementById('exportMidi').addEventListener('click', function() {
     try {
       const midiData = createMidiFile();
@@ -774,7 +850,6 @@
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
       
-      // Show success notification
       showNotification('MIDI file exported successfully', 'success');
     } catch (error) {
       console.error('Error exporting MIDI:', error);
@@ -799,10 +874,36 @@
     }, 3000);
   }
   
-  // Helper function for calculating LCM
-  function lcm(a, b) {
-    return (a * b) / gcd(a, b);
-  }
+  // Add event listener for the bar multiplier changes
+  document.getElementById('barMultiplier').addEventListener('change', function() {
+    barMultiplier = parseInt(this.value);
+    updatePlayingSequencer();
+  });
+  
+  // Add event listener for the export button
+  document.getElementById('exportMidi').addEventListener('click', function() {
+    try {
+      const midiData = createMidiFile();
+      const blob = generateMidiBlob(midiData);
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '3beat-pattern.mid';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+      // Show success notification
+      showNotification('MIDI file exported successfully', 'success');
+    } catch (error) {
+      console.error('Error exporting MIDI:', error);
+      showNotification('Failed to export MIDI file', 'error');
+    }
+  });
+  
+  // Add notification styles to CSS
   
   // State
   let isPlaying = false;
@@ -816,6 +917,124 @@
   
   // Connect analyzer nodes to their respective gain nodes
   analyzerNodes.forEach((analyzer, index) => gainNodes[index].connect(analyzer));
+  
+  // Updated visualization function
+  function visualize() {
+      if (!isPlaying) return;
+      
+      requestAnimationFrame(visualize);
+    
+      analyzerNodes.forEach((analyzer, index) => {
+        const spectrogramCanvas = document.getElementById(`spectrogram${index + 1}`);
+        if (!spectrogramCanvas) return;
+        
+        const spectrogramCtx = spectrogramCanvas.getContext('2d');
+        const bufferLength = analyzer.size;
+        const dataArray = analyzer.getValue();
+    
+        // Clear the canvas first
+        spectrogramCtx.clearRect(0, 0, spectrogramCanvas.width, spectrogramCanvas.height);
+    
+        // Create circular clip path
+        spectrogramCtx.save();
+        spectrogramCtx.beginPath();
+        spectrogramCtx.arc(
+          spectrogramCanvas.width / 2,
+          spectrogramCanvas.height / 2,
+          Math.min(spectrogramCanvas.width, spectrogramCanvas.height) / 2 - 10,
+          0,
+          Math.PI * 2
+        );
+        spectrogramCtx.clip();
+    
+        // Draw almost invisible background
+        spectrogramCtx.fillStyle = 'rgba(0, 255, 255, 0.02)';
+        spectrogramCtx.fillRect(0, 0, spectrogramCanvas.width, spectrogramCanvas.height);
+    
+        const barWidth = (spectrogramCanvas.width / bufferLength) * 2.5;
+        let x = 0;
+    
+        for (let i = 0; i < bufferLength; i++) {
+          // Start with a very low baseline
+          let value = dataArray[i];
+          
+          // Check if value is finite and non-null
+          if (!Number.isFinite(value) || value === null) {
+            value = -140; // Use minimum value instead of 0
+          }
+          
+          // Ensure the value is properly scaled
+          value = Math.max(-140, Math.min(0, value));
+          
+          // Scale the height more conservatively
+          const barHeight = ((value + 140) / 140) * spectrogramCanvas.height * 0.8;
+    
+          if (barHeight > 0) {
+            try {
+              const gradient = spectrogramCtx.createLinearGradient(
+                0,
+                spectrogramCanvas.height,
+                0,
+                Math.max(0, spectrogramCanvas.height - barHeight)
+              );
+              
+              // Use more subtle gradient with lower opacity
+              gradient.addColorStop(0, `rgba(0, 255, 255, 0.1)`);
+              gradient.addColorStop(1, `rgba(0, 255, 255, 0.4)`);
+    
+              spectrogramCtx.fillStyle = gradient;
+              spectrogramCtx.fillRect(
+                x,
+                spectrogramCanvas.height - barHeight,
+                barWidth,
+                barHeight
+              );
+            } catch (error) {
+              console.warn('Visualization error:', error);
+              spectrogramCtx.fillStyle = 'rgba(0, 255, 255, 0.2)';
+              spectrogramCtx.fillRect(
+                x,
+                spectrogramCanvas.height - barHeight,
+                barWidth,
+                barHeight
+              );
+            }
+          }
+    
+          x += barWidth + 1;
+        }
+        
+        spectrogramCtx.restore();
+      });
+  }
+  
+  // Update the DOMContentLoaded event listener to include spectrogram initialization
+  document.addEventListener('DOMContentLoaded', () => {
+      // Clear and initialize spectrograms
+      document.querySelectorAll('.spectrogram').forEach(canvas => {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Create circular clip path
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(
+          canvas.width / 2,
+          canvas.height / 2,
+          Math.min(canvas.width, canvas.height) / 2 - 10,
+          0,
+          Math.PI * 2
+        );
+        ctx.clip();
+        
+        ctx.restore();
+      });
+      
+      // Initialize other components
+      populateNoteAndSoundSelects();
+      updateSequencer();
+      initializeBpmInput();
+  });
   
   // Utility functions
   const getRandomVelocity = () => {
@@ -850,9 +1069,17 @@
       
       select.addEventListener('change', (event) => {
         const noteSelect = document.getElementById(`note${index + 1}`);
-        noteSelect.disabled = COLOR_NOISES.includes(event.target.value);
-        if (COLOR_NOISES.includes(event.target.value)) {
+        const isNoise = COLOR_NOISES.includes(event.target.value);
+        
+        if (isNoise) {
+          // Save current note before disabling
+          savedNotes[index] = noteSelect.value;
+          noteSelect.disabled = true;
           noteSelect.value = SOUND_TO_NOTE[event.target.value];
+        } else {
+          // Restore saved note when switching back to non-noise sound
+          noteSelect.disabled = false;
+          noteSelect.value = savedNotes[index];
         }
       });
     });
@@ -1018,7 +1245,9 @@
       }
   
       return {
-        note: COLOR_NOISES.includes(sounds[index]) ? SOUND_TO_NOTE[sounds[index]] : notes[index],
+        note: COLOR_NOISES.includes(sounds[index]) ? 
+          SOUND_TO_NOTE[sounds[index]] : 
+          (notes[index] || savedNotes[index]), // Use saved note as fallback
         sound: sounds[index],
         divisions: div,
         pattern: newPattern.length ? newPattern : new Array(div).fill(false)
@@ -1045,17 +1274,21 @@
     }
   }
   
+  // Update playing sequencer with adjusted timing
   function updatePlayingSequencer() {
     stopSequencer();
     startSequencer();
   }
   
+  // Adjusted startSequencer function to handle adjusted timing
   function startSequencer() {
     const bpm = parseInt(document.getElementById('bpm').value);
-    Tone.Transport.bpm.value = bpm;
+    // Adjust BPM based on bar multiplier to create progressively slower playback
+    const adjustedBpm = bpm / (1 + (barMultiplier - 1) * 0.5);
+    Tone.Transport.bpm.value = adjustedBpm;
     
     sequences = sequencers.map((seq, index) => {
-      const stepTime = 60 / (bpm * seq.divisions);
+      const stepTime = 60 / (adjustedBpm * seq.divisions);
       return createSequence(seq, index, stepTime);
     });
   
@@ -1063,344 +1296,158 @@
     visualize();
   }
   
+  // Updated createSequence function to adjust timing based on bar multiplier
   function createSequence(seq, index, stepTime) {
-    return new Tone.Sequence((time, step) => {
-      updateDotColors(index, step);
-      if (seq.pattern[step]) {
-        playSound(seq, index, time, stepTime);
-      }
-    }, [...Array(seq.divisions).keys()], stepTime).start(0);
-  }
-  
-  function updateDotColors(index, step) {
-    document.querySelectorAll(`#sequencer${index + 1} .dot`).forEach(dot => {
-      dot.style.backgroundColor = dot.classList.contains('active') ? 'var(--primary-color)' : 'var(--secondary-color)';
-      dot.style.boxShadow = 'none';
-    });
-    const currentDot = document.querySelector(`#sequencer${index + 1} .dot:nth-child(${step + 2})`);
-    if (currentDot) {
-      currentDot.style.backgroundColor = sequencers[index].pattern[step] ? 'var(--primary-color)' : 'var(--tertiary-color)';
-      currentDot.style.boxShadow = '0 0 10px var(--primary-color)';
-    }
-  }
-  
-  function playSound(seq, index, time, stepTime) {
-    const velocity = getRandomVelocity();
-    const duration = getNoteDuration() * stepTime;
-    
+    // Initialize synth/noise sources once and reuse them
+    let source;
     if (COLOR_NOISES.includes(seq.sound)) {
-      let noise;
       if (seq.sound === 'violet') {
-        // Create a proper violet noise by combining filters
-        noise = new Tone.Noise('white');
-        
-        // Create a filter chain for violet noise (+6 dB/octave slope)
+        source = new Tone.Noise('white');
         const highPass1 = new Tone.Filter({
           type: 'highpass',
           frequency: 500,
           rolloff: -12
         });
-        
         const highPass2 = new Tone.Filter({
           type: 'highpass',
           frequency: 1000,
           rolloff: -12
         });
-        
         const highShelf = new Tone.Filter({
           type: 'highshelf',
           frequency: 2000,
           gain: 6
         });
-  
-        // Connect the filters in series
-        noise.chain(highPass1, highPass2, highShelf, gainNodes[index]);
+        source.chain(highPass1, highPass2, highShelf, gainNodes[index]);
       } else if (seq.sound === 'blue') {
+        source = new Tone.Noise('white');
         const blueFilter = new Tone.Filter({
           type: 'highpass',
           frequency: 500,
           rolloff: -12
         });
-        noise = new Tone.Noise('white').connect(blueFilter);
-        blueFilter.connect(gainNodes[index]);
+        source.chain(blueFilter, gainNodes[index]);
       } else {
-        noise = new Tone.Noise(seq.sound).connect(gainNodes[index]);
+        source = new Tone.Noise(seq.sound).connect(gainNodes[index]);
       }
-      noise.start(time).stop(time + duration);
     } else {
-      const synthInstance = new Tone.Synth({
+      source = new Tone.Synth({
         oscillator: { type: seq.sound }
       }).connect(gainNodes[index]);
-      synthInstance.triggerAttackRelease(seq.note, duration, time, velocity);
     }
+  
+    // Create an extended pattern array that repeats based on bar multiplier
+    const extendedPattern = Array(seq.divisions * barMultiplier)
+      .fill(0)
+      .map((_, i) => seq.pattern[i % seq.divisions]);
+  
+    // Adjust stepTime based on bar multiplier
+    const adjustedStepTime = stepTime * (1 + (barMultiplier - 1) * 0.5);
+  
+    return new Tone.Sequence((time, step) => {
+      // Calculate the visual step (which dot to highlight)
+      const visualStep = step % seq.divisions;
+      updateDotColors(index, visualStep);
+      
+      if (extendedPattern[step]) {
+        const velocity = getRandomVelocity();
+        const duration = getNoteDuration() * adjustedStepTime;
+        
+        if (COLOR_NOISES.includes(seq.sound)) {
+          source.start(time).stop(time + duration);
+        } else {
+          source.triggerAttackRelease(seq.note, duration, time, velocity);
+        }
+      }
+    }, [...Array(seq.divisions * barMultiplier).keys()], adjustedStepTime).start(0);
   }
   
   function stopSequencer() {
     Tone.Transport.stop();
-    sequences.forEach(seq => seq.dispose());
+    sequences.forEach(seq => {
+      if (seq.dispose) seq.dispose();
+    });
+    sequences = [];
     resetDotColors();
     
-    // Clear all spectrograms with minimal background
+    // Clear spectrograms
     document.querySelectorAll('.spectrogram').forEach(canvas => {
       const ctx = canvas.getContext('2d');
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Create circular clip path
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(
-        canvas.width / 2,
-        canvas.height / 2,
-        Math.min(canvas.width, canvas.height) / 2 - 10,
-        0,
-        Math.PI * 2
-      );
-      ctx.clip();
-      
-      // Almost invisible background
-      // ctx.fillStyle = 'rgba(0, 255, 255, 0.02)';
-      // ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      ctx.restore();
     });
   }
   
-  // Visualization
-  function visualize() {
-    if (!isPlaying) return;
-    
-    requestAnimationFrame(visualize);
-  
-    analyzerNodes.forEach((analyzer, index) => {
-      const spectrogramCanvas = document.getElementById(`spectrogram${index + 1}`);
-      if (!spectrogramCanvas) return;
-      
-      const spectrogramCtx = spectrogramCanvas.getContext('2d');
-      const bufferLength = analyzer.size;
-      const dataArray = analyzer.getValue();
-  
-      // Clear the canvas first
-      spectrogramCtx.clearRect(0, 0, spectrogramCanvas.width, spectrogramCanvas.height);
-  
-      // Create circular clip path
-      spectrogramCtx.save();
-      spectrogramCtx.beginPath();
-      spectrogramCtx.arc(
-        spectrogramCanvas.width / 2,
-        spectrogramCanvas.height / 2,
-        Math.min(spectrogramCanvas.width, spectrogramCanvas.height) / 2 - 10,
-        0,
-        Math.PI * 2
-      );
-      spectrogramCtx.clip();
-  
-      // Draw almost invisible background
-      spectrogramCtx.fillStyle = 'rgba(0, 255, 255, 0.02)';
-      spectrogramCtx.fillRect(0, 0, spectrogramCanvas.width, spectrogramCanvas.height);
-  
-      const barWidth = (spectrogramCanvas.width / bufferLength) * 2.5;
-      let x = 0;
-  
-      for (let i = 0; i < bufferLength; i++) {
-        // Start with a very low baseline
-        let value = dataArray[i];
-        
-        // Check if value is finite and non-null
-        if (!Number.isFinite(value) || value === null) {
-          value = -140; // Use minimum value instead of 0
-        }
-        
-        // Ensure the value is properly scaled
-        value = Math.max(-140, Math.min(0, value));
-        
-        // Scale the height more conservatively
-        const barHeight = ((value + 140) / 140) * spectrogramCanvas.height * 0.8;
-  
-        if (barHeight > 0) {
-          try {
-            const gradient = spectrogramCtx.createLinearGradient(
-              0,
-              spectrogramCanvas.height,
-              0,
-              Math.max(0, spectrogramCanvas.height - barHeight)
-            );
-            
-            // Use more subtle gradient with lower opacity
-            gradient.addColorStop(0, `rgba(0, 255, 255, 0.1)`);
-            gradient.addColorStop(1, `rgba(0, 255, 255, 0.4)`);
-  
-            spectrogramCtx.fillStyle = gradient;
-            spectrogramCtx.fillRect(
-              x,
-              spectrogramCanvas.height - barHeight,
-              barWidth,
-              barHeight
-            );
-          } catch (error) {
-            console.warn('Visualization error:', error);
-            spectrogramCtx.fillStyle = 'rgba(0, 255, 255, 0.2)';
-            spectrogramCtx.fillRect(
-              x,
-              spectrogramCanvas.height - barHeight,
-              barWidth,
-              barHeight
-            );
-          }
-        }
-  
-        x += barWidth + 1;
+  // Add function to update dot colors
+  function updateDotColors(sequencerIndex, currentStep) {
+    const dots = document.querySelectorAll(`#sequencer${sequencerIndex + 1} .dot`);
+    dots.forEach((dot, index) => {
+      if (index === currentStep) {
+        dot.style.backgroundColor = dot.classList.contains('active') ? 
+          'var(--primary-color)' : 
+          'var(--secondary-color)';
+        dot.style.boxShadow = '0 0 15px var(--primary-color)';
+      } else {
+        dot.style.backgroundColor = dot.classList.contains('active') ? 
+          'var(--primary-color)' : 
+          'var(--secondary-color)';
+        dot.style.boxShadow = 'none';
       }
-      
-      spectrogramCtx.restore();
     });
   }
   
-  // Make sure the spectrograms are cleared on app start
-  document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.spectrogram').forEach(canvas => {
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      // Create circular clip path
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(
-        canvas.width / 2,
-        canvas.height / 2,
-        Math.min(canvas.width, canvas.height) / 2 - 10,
-        0,
-        Math.PI * 2
-      );
-      ctx.clip();
-      
-      // Almost invisible background
-      // ctx.fillStyle = 'rgba(0, 255, 255, 0.02)';
-      // ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      ctx.restore();
-    });
-    
-    populateNoteAndSoundSelects();
-    updateSequencer();
-  });
-  
-  // Event handlers
-  function togglePlayPause() {
-    if (Tone.context.state !== 'running') {
-      Tone.context.resume().then(playPauseAction);
-    } else {
-      playPauseAction();
-    }
-    
-    // Toggle icons
-    document.querySelector('.play-icon').classList.toggle('show');
-    document.querySelector('.pause-icon').classList.toggle('show');
-  }
-  
+  // Fix play/pause functionality
   function playPauseAction() {
     isPlaying = !isPlaying;
     
     if (isPlaying) {
+      document.querySelector('.play-icon').classList.remove('show');
+      document.querySelector('.pause-icon').classList.add('show');
       startSequencer();
     } else {
+      document.querySelector('.play-icon').classList.add('show');
+      document.querySelector('.pause-icon').classList.remove('show');
       stopSequencer();
     }
   }
   
-  // Add MIDI file creation and download functionality
-  function generateMidiBlob(midiData) {
-    // Simple MIDI file writer
-    const writeMidiFile = function(data) {
-      const buffer = new ArrayBuffer(data.length);
-      const view = new Uint8Array(buffer);
-      for (let i = 0; i < data.length; i++) {
-        view[i] = data[i];
-      }
-      return buffer;
-    };
-  
-    const writeVarLength = function(value) {
-      let bytes = [];
-      let currentByte;
-  
-      do {
-        currentByte = value & 0x7F;
-        value >>= 7;
-        if (value) currentByte |= 0x80;
-        bytes.push(currentByte);
-      } while (value);
-  
-      return bytes;
-    };
-  
-    const writeInt16 = function(value) {
-      return [(value >> 8) & 0xFF, value & 0xFF];
-    };
-  
-    const writeInt32 = function(value) {
-      return [
-        (value >> 24) & 0xFF,
-        (value >> 16) & 0xFF,
-        (value >> 8) & 0xFF,
-        value & 0xFF
-      ];
-    };
-  
-    // Write header chunk
-    let data = [
-      0x4D, 0x54, 0x68, 0x64, // MThd
-      ...writeInt32(6), // Header size
-      ...writeInt16(midiData.header.format),
-      ...writeInt16(midiData.header.numTracks),
-      ...writeInt16(midiData.header.ticksPerBeat)
-    ];
-  
-    // Write track chunk
-    const track = midiData.tracks[0];
-    let trackData = [];
-  
-    // Write track events
-    track.forEach(event => {
-      // Write delta time
-      trackData.push(...writeVarLength(event.deltaTime));
-  
-      // Write event data based on type
-      switch(event.type) {
-        case 'noteOn':
-          trackData.push(0x90 | event.channel); // Note On
-          trackData.push(event.noteNumber);
-          trackData.push(event.velocity);
-          break;
-        case 'noteOff':
-          trackData.push(0x80 | event.channel); // Note Off
-          trackData.push(event.noteNumber);
-          trackData.push(event.velocity);
-          break;
-        case 'setTempo':
-          trackData.push(0xFF); // Meta event
-          trackData.push(0x51); // Tempo
-          trackData.push(0x03); // Length
-          trackData.push(...writeInt32(event.microsecondsPerBeat).slice(1));
-          break;
-        case 'endOfTrack':
-          trackData.push(0xFF, 0x2F, 0x00);
-          break;
-      }
+  // Add initialization code at the end of the script
+  document.addEventListener('DOMContentLoaded', () => {
+    // Clear and initialize spectrograms
+    document.querySelectorAll('.spectrogram').forEach(canvas => {
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Create circular clip path
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(
+        canvas.width / 2,
+        canvas.height / 2,
+        Math.min(canvas.width, canvas.height) / 2 - 10,
+        0,
+        Math.PI * 2
+      );
+      ctx.clip();
+      
+      ctx.restore();
     });
-  
-    // Add track chunk header
-    data.push(
-      0x4D, 0x54, 0x72, 0x6B, // MTrk
-      ...writeInt32(trackData.length)
-    );
-    // Add track data
-    data.push(...trackData);
-  
-    return new Blob([writeMidiFile(data)], {type: 'audio/midi'});
-  }
+    
+    // Enable play button initially if BPM is valid
+    const bpmInput = document.getElementById('bpm');
+    const playButton = document.getElementById('playPause');
+    const bpmValue = parseInt(bpmInput.value);
+    playButton.disabled = bpmValue < 60 || bpmValue > 300;
+    
+    populateNoteAndSoundSelects();
+    updateSequencer();
+    initializeBpmInput();
+    
+    // Initialize Tone.js
+    Tone.start();
+  });
   
   // Event listeners
-  document.getElementById('playPause').addEventListener('click', togglePlayPause);
+  document.getElementById('playPause').addEventListener('click', playPauseAction);
   
   document.getElementById('bpm').addEventListener('input', () => {
     const bpm = parseInt(document.getElementById('bpm').value);
@@ -1428,6 +1475,114 @@
   document.getElementById('noteDuration').addEventListener('input', function() {
     document.getElementById('noteDurationValue').textContent = this.value + '%';
   });
+  
+  function initializeBpmInput() {
+    const bpmInput = document.getElementById('bpm');
+    const playButton = document.getElementById('playPause');
+    
+    // Set initial value with padding
+    bpmInput.value = lastValidBpm.toString().padStart(3, '0');
+    
+    bpmInput.addEventListener('input', function(e) {
+      clearTimeout(bpmInputTimeout);
+      
+      let value = e.target.value.replace(/\D/g, '');
+      let cursorPosition = this.selectionStart;
+      
+      // Handle single digit input
+      if (value.length === 1) {
+        if (cursorPosition === 1) {
+          // Replace first digit
+          value = value.padStart(3, '0');
+        } else if (cursorPosition === 2) {
+          // Replace second digit
+          value = lastValidBpm.toString().padStart(3, '0').slice(0, 1) + 
+                 value + 
+                 lastValidBpm.toString().padStart(3, '0').slice(2);
+        } else if (cursorPosition === 3) {
+          // Replace third digit
+          value = lastValidBpm.toString().padStart(3, '0').slice(0, 2) + value;
+        }
+      }
+      
+      // Ensure 3 digits
+      value = value.slice(0, 3).padStart(3, '0');
+      
+      // Cap first digit at 3
+      if (parseInt(value[0]) > 3) {
+        value = '300';
+      }
+      
+      let numValue = parseInt(value);
+      
+      // Validate range
+      if (numValue < 60) {
+        numValue = 60;
+        value = '060';
+      } else if (numValue > 300) {
+        numValue = 300;
+        value = '300';
+      }
+      
+      // Update input value
+      this.value = value;
+      
+      // Restore cursor position
+      this.setSelectionRange(cursorPosition, cursorPosition);
+      
+      // Toggle invalid class
+      this.classList.toggle('invalid', numValue < 60 || numValue > 300);
+      
+      // Enable/disable play button
+      playButton.disabled = numValue < 60 || numValue > 300;
+      
+      // Update lastValidBpm after short delay
+      bpmInputTimeout = setTimeout(() => {
+        lastValidBpm = numValue;
+        this.classList.remove('invalid');
+        
+        // Update transport if playing
+        if (isPlaying) {
+          Tone.Transport.bpm.value = numValue;
+        }
+      }, 300);
+    });
+    
+    // Handle focus
+    bpmInput.addEventListener('focus', function() {
+      // Store current cursor position
+      const cursorPosition = this.selectionStart;
+      // Ensure 3 digits are shown
+      this.value = parseInt(this.value).toString().padStart(3, '0');
+      // Restore cursor position
+      this.setSelectionRange(cursorPosition, cursorPosition);
+    });
+    
+    // Handle blur
+    bpmInput.addEventListener('blur', function() {
+      let value = parseInt(this.value);
+      if (value < 60) value = 60;
+      if (value > 300) value = 300;
+      this.value = value.toString().padStart(3, '0');
+      lastValidBpm = value;
+      this.classList.remove('invalid');
+    });
+  }
+  
+  // Modify the play button CSS to show disabled state
+  document.querySelector('#playPause').style.cssText += `
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+  `;
+  
+  // Call initialization after DOM content loaded
+  document.addEventListener('DOMContentLoaded', () => {
+    initializeBpmInput();
+  });
+  
   </script>
   
   </body></html>
