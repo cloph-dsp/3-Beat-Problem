@@ -1,4 +1,5 @@
-<html><head><title>3 Beat Problem</title>
+<html><head><base href="https://">
+  <title>3 Beat Problem</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&amp;family=Roboto:wght@300;400;700&amp;display=swap" rel="stylesheet">
   <style>
     :root {
@@ -355,14 +356,14 @@
       border-radius: 3px;
     }
   
-    /* Update the slider thumb styles to use magenta instead of yellow */
+    /* Update the slider thumb styles */
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background: var(--secondary-color);
-      border: 2px solid var(--primary-color);
+      background: var(--primary-color); /* Cyan center */
+      border: 2px solid var(--tertiary-color); /* Yellow border */
       box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
       cursor: pointer;
       transition: all 0.3s ease;
@@ -373,8 +374,8 @@
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background: var(--secondary-color);
-      border: 2px solid var(--primary-color);
+      background: var(--primary-color); /* Cyan center */
+      border: 2px solid var(--tertiary-color); /* Yellow border */
       box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
       cursor: pointer;
       transition: all 0.3s ease;
@@ -385,8 +386,8 @@
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background: var(--secondary-color);
-      border: 2px solid var(--primary-color);
+      background: var(--primary-color); /* Cyan center */
+      border: 2px solid var(--tertiary-color); /* Yellow border */
       box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
       cursor: pointer;
       transition: all 0.3s ease;
@@ -762,77 +763,181 @@
     return baseNote + ((octave - 4) * 12); // Adjust for octave
   }
   
+  function createMidiFile() {
+    try {
+      const bpm = Math.max(parseInt(document.getElementById('bpm').value), 1);
+      const barMultiplierValue = Math.max(parseInt(document.getElementById('barMultiplier').value), 1);
+      
+      const ticksPerBeat = 480;
+      
+      let midiData = {
+        format: 0,
+        numTracks: 1, 
+        ticksPerBeat: ticksPerBeat,
+        tracks: [[
+          // Add tempo meta event
+          {
+            deltaTime: 0,
+            meta: true,
+            type: 'setTempo',
+            microsecondsPerBeat: Math.floor(60000000 / bpm)
+          }
+        ]]
+      };
+  
+      sequencers.forEach((seq, index) => {
+        const channel = index;
+        const ticksPerDivision = Math.floor(ticksPerBeat * 4 / seq.divisions);
+        
+        // Calculate total pattern length accounting for bar multiplier
+        const totalSteps = seq.divisions * barMultiplierValue;
+        
+        for (let step = 0; step < totalSteps; step++) {
+          const noteStep = step % seq.divisions;
+          if (seq.pattern[noteStep]) {
+            const noteNumber = seq.sound === 'noise' ? 60 : noteToMidiNumber(seq.note);
+            const velocity = Math.floor(getRandomVelocity() * 127);
+            const stepTime = step * ticksPerDivision;
+            const noteDuration = Math.max(Math.floor(ticksPerDivision * getNoteDuration()), 1);
+            
+            // Note On event
+            midiData.tracks[0].push({
+              deltaTime: stepTime,
+              channel: channel,
+              type: 'noteOn',
+              noteNumber: noteNumber,
+              velocity: velocity
+            });
+            
+            // Note Off event
+            midiData.tracks[0].push({
+              deltaTime: stepTime + noteDuration,
+              channel: channel,
+              type: 'noteOff', 
+              noteNumber: noteNumber,
+              velocity: 0
+            });
+          }
+        }
+      });
+  
+      // Sort events by time
+      midiData.tracks[0].sort((a, b) => a.deltaTime - b.deltaTime);
+      
+      // Convert absolute times to delta times
+      let lastTime = 0;
+      midiData.tracks[0].forEach(event => {
+        const absoluteTime = event.deltaTime;
+        event.deltaTime = Math.max(0, absoluteTime - lastTime);
+        lastTime = absoluteTime;
+      });
+  
+      // Add end of track
+      midiData.tracks[0].push({
+        deltaTime: 0,
+        meta: true,
+        type: 'endOfTrack'
+      });
+  
+      return midiData;
+    } catch (error) {
+      console.error('Error creating MIDI:', error);
+      throw error;
+    }
+  }
+  
+  // Update generateMidiBlob function to properly encode MIDI data
   function generateMidiBlob(midiData) {
-    const writeVarLength = (value) => {
-      let bytes = [];
-      let v = value;
-      do {
-        let b = v & 0x7f;
-        v >>= 7;
-        if (v) b |= 0x80;
-        bytes.push(b);
-      } while (v);
-      return bytes;
-    };
+    try {
+      const buffer = new ArrayBuffer(1024);
+      const view = new DataView(buffer);
+      let offset = 0;
   
-    const writeMidiChunk = (type, data) => {
-      let chunk = [];
-      chunk.push(...type.split('').map(c => c.charCodeAt(0)));
-      let length = writeVarLength(data.length);
-      chunk.push(...length);
-      chunk.push(...data);
-      return chunk;
-    };
+      // Write header chunk
+      const writeString = (str) => {
+        for (let i = 0; i < str.length; i++) {
+          view.setUint8(offset + i, str.charCodeAt(i));
+        }
+        offset += str.length;
+      };
   
-    const MThd = [
-      0x00, 0x00, 0x00, 0x06, // Header length
-      0x00, 0x00, // Format 0
-      0x00, 0x01, // One track
-      0x01, 0xe0  // 480 ticks per quarter note
-    ];
+      const writeInt16 = (value) => {
+        view.setInt16(offset, value, false);
+        offset += 2;
+      };
   
-    let trackData = [];
-    
-    // Write tempo
-    const bpm = parseInt(document.getElementById('bpm').value);
-    const microsecondsPerBeat = Math.floor(60000000 / bpm);
-    trackData.push(0x00); // Delta time
-    trackData.push(0xff, 0x51, 0x03); // Tempo meta event
-    trackData.push(
-      (microsecondsPerBeat >> 16) & 0xff,
-      (microsecondsPerBeat >> 8) & 0xff,
-      microsecondsPerBeat & 0xff
-    );
+      const writeInt32 = (value) => {
+        view.setInt32(offset, value, false);
+        offset += 4;
+      };
   
-    // Write track events
-    midiData.tracks[0].forEach(event => {
-      // Write delta time
-      trackData.push(...writeVarLength(event.deltaTime));
+      const writeVarLength = (value) => {
+        let v = value;
+        if (v < 0) v = 0;
+        
+        if (v > 0x0FFFFFFF) v = 0x0FFFFFFF;
+        
+        let bytes = [];
+        do {
+          bytes.push(v & 0x7F);
+          v = v >> 7;
+        } while (v > 0);
+        
+        for (let i = bytes.length - 1; i >= 0; i--) {
+          let b = bytes[i];
+          if (i > 0) b |= 0x80;
+          view.setUint8(offset, b);
+          offset++;
+        }
+      };
   
-      switch(event.type) {
-        case 'noteOn':
-          trackData.push(0x90 | event.channel);
-          trackData.push(event.noteNumber & 0x7f);
-          trackData.push(event.velocity & 0x7f);
-          break;
-        case 'noteOff':
-          trackData.push(0x80 | event.channel);
-          trackData.push(event.noteNumber & 0x7f);
-          trackData.push(event.velocity & 0x7f);
-          break;
-        case 'endOfTrack':
-          trackData.push(0xff, 0x2f, 0x00);
-          break;
-      }
-    });
+      // Write header
+      writeString('MThd');
+      writeInt32(6); // Header length
+      writeInt16(midiData.format);
+      writeInt16(midiData.numTracks);
+      writeInt16(midiData.ticksPerBeat);
   
-    // Combine all chunks
-    let midiFile = [
-      ...writeMidiChunk('MThd', MThd),
-      ...writeMidiChunk('MTrk', trackData)
-    ];
+      // Write track
+      writeString('MTrk');
+      const trackLengthOffset = offset;
+      offset += 4; // Skip length for now
   
-    return new Blob([new Uint8Array(midiFile)], {type: 'audio/midi'});
+      // Write track events
+      midiData.tracks[0].forEach(event => {
+        writeVarLength(event.deltaTime);
+        
+        if (event.meta) {
+          view.setUint8(offset++, 0xFF);
+          
+          if (event.type === 'setTempo') {
+            view.setUint8(offset++, 0x51);
+            view.setUint8(offset++, 0x03);
+            view.setUint8(offset++, (event.microsecondsPerBeat >> 16) & 0xFF);
+            view.setUint8(offset++, (event.microsecondsPerBeat >> 8) & 0xFF);
+            view.setUint8(offset++, event.microsecondsPerBeat & 0xFF);
+          } else if (event.type === 'endOfTrack') {
+            view.setUint8(offset++, 0x2F);
+            view.setUint8(offset++, 0x00);
+          }
+        } else {
+          // Note events
+          const statusByte = event.type === 'noteOn' ? 0x90 : 0x80;
+          view.setUint8(offset++, statusByte | event.channel);
+          view.setUint8(offset++, event.noteNumber & 0x7F);
+          view.setUint8(offset++, event.velocity & 0x7F);
+        }
+      });
+  
+      // Write track length
+      const trackLength = offset - trackLengthOffset - 4;
+      view.setInt32(trackLengthOffset, trackLength, false);
+  
+      return new Blob([new Uint8Array(buffer.slice(0, offset))], {type: 'audio/midi'});
+    } catch (error) {
+      console.error('Error generating MIDI blob:', error);
+      throw error;
+    }
   }
   
   // Add export button click handler
@@ -1282,99 +1387,133 @@
   
   // Adjusted startSequencer function to handle adjusted timing
   function startSequencer() {
-    const bpm = parseInt(document.getElementById('bpm').value);
-    // Adjust BPM based on bar multiplier to create progressively slower playback
-    const adjustedBpm = bpm / (1 + (barMultiplier - 1) * 0.5);
-    Tone.Transport.bpm.value = adjustedBpm;
-    
-    sequences = sequencers.map((seq, index) => {
-      const stepTime = 60 / (adjustedBpm * seq.divisions);
-      return createSequence(seq, index, stepTime);
-    });
-  
-    Tone.Transport.start();
-    visualize();
-  }
-  
-  // Updated createSequence function to adjust timing based on bar multiplier
-  function createSequence(seq, index, stepTime) {
-    // Initialize synth/noise sources once and reuse them
-    let source;
-    if (COLOR_NOISES.includes(seq.sound)) {
-      if (seq.sound === 'violet') {
-        source = new Tone.Noise('white');
-        const highPass1 = new Tone.Filter({
-          type: 'highpass',
-          frequency: 500,
-          rolloff: -12
-        });
-        const highPass2 = new Tone.Filter({
-          type: 'highpass',
-          frequency: 1000,
-          rolloff: -12
-        });
-        const highShelf = new Tone.Filter({
-          type: 'highshelf',
-          frequency: 2000,
-          gain: 6
-        });
-        source.chain(highPass1, highPass2, highShelf, gainNodes[index]);
-      } else if (seq.sound === 'blue') {
-        source = new Tone.Noise('white');
-        const blueFilter = new Tone.Filter({
-          type: 'highpass',
-          frequency: 500,
-          rolloff: -12
-        });
-        source.chain(blueFilter, gainNodes[index]);
-      } else {
-        source = new Tone.Noise(seq.sound).connect(gainNodes[index]);
-      }
-    } else {
-      source = new Tone.Synth({
-        oscillator: { type: seq.sound }
-      }).connect(gainNodes[index]);
-    }
-  
-    // Create an extended pattern array that repeats based on bar multiplier
-    const extendedPattern = Array(seq.divisions * barMultiplier)
-      .fill(0)
-      .map((_, i) => seq.pattern[i % seq.divisions]);
-  
-    // Adjust stepTime based on bar multiplier
-    const adjustedStepTime = stepTime * (1 + (barMultiplier - 1) * 0.5);
-  
-    return new Tone.Sequence((time, step) => {
-      // Calculate the visual step (which dot to highlight)
-      const visualStep = step % seq.divisions;
-      updateDotColors(index, visualStep);
+    try {
+      const bpm = parseInt(document.getElementById('bpm').value);
+      // Ensure positive BPM value
+      const adjustedBpm = Math.max(bpm / (1 + (barMultiplier - 1) * 0.5), 1);
       
-      if (extendedPattern[step]) {
-        const velocity = getRandomVelocity();
-        const duration = getNoteDuration() * adjustedStepTime;
-        
-        if (COLOR_NOISES.includes(seq.sound)) {
-          source.start(time).stop(time + duration);
-        } else {
-          source.triggerAttackRelease(seq.note, duration, time, velocity);
-        }
-      }
-    }, [...Array(seq.divisions * barMultiplier).keys()], adjustedStepTime).start(0);
+      // Stop any existing transport
+      Tone.Transport.stop();
+      Tone.Transport.cancel();
+      
+      // Set new BPM
+      Tone.Transport.bpm.value = adjustedBpm;
+      
+      // Create sequences
+      sequences = sequencers.map((seq, index) => {
+        const stepTime = Math.max(60 / (adjustedBpm * seq.divisions), 0.01);
+        const sequence = createSequence(seq, index, stepTime);
+        return sequence;
+      }).filter(seq => seq !== null); // Filter out any failed sequences
+  
+      // Start transport with a small delay to ensure proper initialization
+      Tone.Transport.start('+0.1');
+      visualize();
+    } catch (error) {
+      console.error('Error starting sequencer:', error);
+      stopSequencer();
+    }
   }
   
+  function createSequence(seq, index, stepTime) {
+    try {
+      // Initialize synth/noise sources once and reuse them
+      let source;
+      if (COLOR_NOISES.includes(seq.sound)) {
+        if (seq.sound === 'violet') {
+          source = new Tone.Noise('white');
+          const highPass1 = new Tone.Filter({
+            type: 'highpass',
+            frequency: 500,
+            rolloff: -12
+          });
+          const highPass2 = new Tone.Filter({
+            type: 'highpass',
+            frequency: 1000,
+            rolloff: -12
+          });
+          const highShelf = new Tone.Filter({
+            type: 'highshelf',
+            frequency: 2000,
+            gain: 6
+          });
+          source.chain(highPass1, highPass2, highShelf, gainNodes[index]);
+        } else if (seq.sound === 'blue') {
+          source = new Tone.Noise('white');
+          const blueFilter = new Tone.Filter({
+            type: 'highpass',
+            frequency: 500,
+            rolloff: -12
+          });
+          source.chain(blueFilter, gainNodes[index]);
+        } else {
+          source = new Tone.Noise(seq.sound).connect(gainNodes[index]);
+        }
+      } else {
+        source = new Tone.Synth({
+          oscillator: { type: seq.sound }
+        }).connect(gainNodes[index]);
+      }
+  
+      // Create an extended pattern array that repeats based on bar multiplier
+      const extendedPattern = Array(seq.divisions * barMultiplier)
+        .fill(0)
+        .map((_, i) => seq.pattern[i % seq.divisions]);
+  
+      // Ensure positive stepTime
+      const adjustedStepTime = Math.max(stepTime * (1 + (barMultiplier - 1) * 0.5), 0.01);
+  
+      return new Tone.Sequence((time, step) => {
+        // Ensure time is non-negative
+        if (time < 0) return;
+        
+        // Calculate the visual step (which dot to highlight)
+        const visualStep = step % seq.divisions;
+        updateDotColors(index, visualStep);
+        
+        if (extendedPattern[step]) {
+          const velocity = getRandomVelocity();
+          const duration = Math.max(getNoteDuration() * adjustedStepTime, 0.01);
+          
+          try {
+            if (COLOR_NOISES.includes(seq.sound)) {
+              source.start(Math.max(time, 0)).stop(Math.max(time + duration, 0.01));
+            } else {
+              source.triggerAttackRelease(seq.note, duration, Math.max(time, 0), velocity);
+            }
+          } catch (error) {
+            console.warn('Error playing sound:', error);
+          }
+        }
+      }, [...Array(seq.divisions * barMultiplier).keys()], adjustedStepTime).start(0);
+    } catch (error) {
+      console.error('Error in createSequence:', error);
+      return null;
+    }
+  }
+  
+  // Update the stopSequencer function to properly clean up
   function stopSequencer() {
-    Tone.Transport.stop();
-    sequences.forEach(seq => {
-      if (seq.dispose) seq.dispose();
-    });
-    sequences = [];
-    resetDotColors();
-    
-    // Clear spectrograms
-    document.querySelectorAll('.spectrogram').forEach(canvas => {
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    });
+    try {
+      Tone.Transport.stop();
+      Tone.Transport.cancel();
+      
+      sequences.forEach(seq => {
+        if (seq && seq.dispose) {
+          seq.dispose();
+        }
+      });
+      sequences = [];
+      resetDotColors();
+      
+      // Clear spectrograms
+      document.querySelectorAll('.spectrogram').forEach(canvas => {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      });
+    } catch (error) {
+      console.error('Error stopping sequencer:', error);
+    }
   }
   
   // Add function to update dot colors
