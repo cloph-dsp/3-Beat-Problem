@@ -28,7 +28,11 @@ let audioSources = {}; // Store instantiated synths/noises keyed by sequencer in
 // Initialize audio context and nodes
 export function init() {
   // Reduce scheduling lookahead and set low-latency for audio context
-  Tone.Transport.lookahead = 0.03;
+  try {
+    Tone.Transport.lookahead = 0.03;
+  } catch (error) {
+    console.warn('Unable to set Transport lookahead (latencyHint may be read-only):', error);
+  }
   // Tone.js context will be started on first user interaction (e.g., play button click)
 
   // Create Gain Nodes and Analyzer Nodes for each sequencer

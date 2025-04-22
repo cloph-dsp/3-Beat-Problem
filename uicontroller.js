@@ -3,10 +3,10 @@ import { exportMidi } from './midiexport.js';
 // Constants
 const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 const OCTAVES = [3, 4, 5];
-// Available oscillator types
-const OSC_TYPES = ['sine','square','triangle','sawtooth','fatsine','fatsawtooth','amsine','fatsquare','fattriangle'];
+// Available oscillator types (ordered by harmonic content: sine, triangle, square, sawtooth; then fat variants and FM)
+const OSC_TYPES = ['sine', 'triangle', 'square', 'sawtooth', 'fatsine', 'fattriangle', 'fatsquare', 'fatsawtooth', 'amsine'];
 // Available noise colors
-const COLOR_NOISES = ['white','pink','brown','violet','blue','red','grey','purple','orange'];
+const COLOR_NOISES = ['white', 'pink', 'brown', 'grey', 'red', 'orange', 'blue', 'violet', 'purple'];
 // Combined sound options for dropdown
 const SOUNDS = [...OSC_TYPES, ...COLOR_NOISES];
 // Default note mapping for noise types
@@ -48,7 +48,12 @@ function populateNoteAndSoundSelects() {
   });
 
   soundSelects.forEach(select => {
-    select.innerHTML = SOUNDS.map(sound => `<option value="${sound}">${sound.charAt(0).toUpperCase() + sound.slice(1)}</option>`).join('');
+    // Use defined OSC_TYPES and COLOR_NOISES order directly
+    const oscOptions = OSC_TYPES.map(type => `<option value="${type}">${type.charAt(0).toUpperCase() + type.slice(1)}</option>`).join('');
+    const noiseOptions = COLOR_NOISES.map(color => `<option value="${color}">${color.charAt(0).toUpperCase() + color.slice(1)}</option>`).join('');
+    select.innerHTML =
+      `<optgroup label="Oscillators">${oscOptions}</optgroup>` +
+      `<optgroup label="Noise">${noiseOptions}</optgroup>`;
   });
 }
 
