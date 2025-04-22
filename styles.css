@@ -1,0 +1,886 @@
+:root {
+  /* Refined Color Palette */
+  --bg-color: #0D1117; /* Dark desaturated blue/grey */
+  --primary-color: #00C4CC; /* Vibrant cyan/teal */
+  --secondary-color: #CC00CC; /* Vibrant magenta/purple */
+  --tertiary-color: #CC9900; /* Warm gold/orange */
+  --text-color: #E6EDF3; /* Soft white/light grey */
+  --control-bg: rgba(22, 27, 34, 0.6); /* Slightly transparent dark */
+  --select-bg: #161B22; /* Darker contrast for selects */
+  --success-color: var(--primary-color);
+  --error-color: var(--secondary-color);
+
+  /* Effect Variables */
+  --ambient-glow-primary: rgba(0, 196, 204, 0.3);
+  --ambient-glow-secondary: rgba(204, 0, 204, 0.3);
+  --border-gradient: conic-gradient(from 45deg, var(--primary-color), var(--secondary-color), var(--tertiary-color), var(--primary-color));
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background: var(--bg-color); /* Use solid background color */
+  color: var(--text-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+.container {
+  display: flex;
+  flex-direction: row; /* Keep row for main layout */
+  justify-content: center;
+  align-items: flex-start; /* Align items to the top */
+  flex-wrap: wrap;
+  gap: 2.5rem; /* Increase gap slightly */
+  width: 100%;
+  max-width: 1300px; /* Slightly wider max width */
+  margin: 2rem auto; /* Add vertical margin */
+  padding: 1.5rem; /* Increase padding */
+  position: relative;
+}
+
+.header {
+  flex: 1 0 100%; /* Take full width */
+  margin: 0 0 2.5rem 0; /* Increase bottom margin */
+  padding: 1rem 1.5rem; /* Adjust padding */
+  gap: 1.5rem;
+  border-radius: 15px; /* Slightly less rounded */
+  background: var(--control-bg); /* Use control background */
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* Revert to center alignment */
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  position: relative; /* enable absolute positioning of advanced-controls */
+}
+
+.header-left {
+  display: flex;
+  align-items: center; /* Revert to center alignment */
+  gap: 1.5rem; /* Gap between h1 and BPM control group */
+  flex: 1 1 auto; /* Allow the left section to grow */
+  min-width: 0; /* Allow shrinking */
+}
+
+/* Add a container for right-side header controls to manage wrapping/spacing */
+.header-controls {
+  display: flex;
+  align-items: flex-start; /* Align children (bar-multiplier, slider-container) to the top */
+  flex-wrap: wrap; /* Allow controls themselves to wrap */
+  gap: 1rem; /* Gap between control groups (BPM, Bar Multiplier, Export) */
+  justify-content: flex-end; /* Align items within this container to the right */
+  flex: 0 1 auto; /* Prevent this container from growing, allow shrinking */
+  min-width: 0; /* Allow shrinking */
+  /* align-self: flex-end; Removed - this was causing misalignment */
+}
+
+.header-actions {
+  position: relative; /* allow absolute layout of dropdown */
+}
+
+h1 {
+  color: var(--primary-color);
+  text-shadow: 0 0 12px var(--ambient-glow-primary); /* Use glow variable for shadow */
+  font-family: 'Orbitron', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-right: 1.5rem; /* Increase margin */
+  flex: 1 1 auto; /* Allow h1 to shrink if needed */
+  min-width: 0; /* Ensure flex shrinking works */
+}
+
+.bpm-control {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Slightly reduce gap within BPM controls */
+  /* margin-top: auto; Removed, let flexbox handle alignment */
+}
+
+.bpm-control label {
+  margin-right: 10px;
+  font-size: 14px;
+  font-family: 'Orbitron', sans-serif;
+  color: var(--tertiary-color); /* Use tertiary color for labels */
+}
+
+#bpm {
+  color: var(--primary-color);
+  width: 60px;
+  text-align: center;
+  background: var(--select-bg);
+  border: 2px solid transparent; /* Prepare for gradient border */
+  background-clip: padding-box; /* Important for border gradient */
+  background-image: linear-gradient(var(--select-bg), var(--select-bg)), var(--border-gradient);
+  padding: 6px; /* Adjust padding for border */
+  font-size: 16px;
+  border-radius: 6px; /* Slightly rounder */
+  transition: all 0.3s ease;
+  position: relative; /* For potential pseudo-elements if needed */
+}
+
+#bpm:focus {
+  outline: none; /* Remove default outline */
+  box-shadow: 0 0 12px 3px var(--ambient-glow-primary); /* Ambient glow */
+}
+
+#bpm.invalid {
+  color: var(--secondary-color);
+  background-image: linear-gradient(var(--select-bg), var(--select-bg)), conic-gradient(from 45deg, var(--error-color), var(--error-color)); /* Error border */
+  box-shadow: 0 0 12px 3px var(--ambient-glow-secondary); /* Error glow */
+}
+
+#playPause {
+  min-width: unset;
+  width: 48px; /* Enlarge button */
+  height: 48px; /* Enlarge button */
+  padding: 0; /* Remove padding */
+  border-radius: 50%; /* Make circular */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--control-bg);
+  border: 2px solid transparent; /* Prepare for gradient border */
+  background-clip: padding-box;
+  background-image: linear-gradient(var(--control-bg), var(--control-bg)), var(--border-gradient);
+  color: var(--primary-color);
+  font-size: 24px; /* Enlarge icon */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Subtle shadow */
+}
+
+#playPause:hover {
+  transform: scale(1.05); /* Subtle scale */
+  color: var(--secondary-color);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3), 0 0 15px 4px var(--ambient-glow-secondary); /* Enhanced shadow + glow */
+}
+
+#playPause:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+  color: var(--text-color);
+  background-image: linear-gradient(var(--control-bg), var(--control-bg)), linear-gradient(gray, gray); /* Grey border when disabled */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.play-icon, .pause-icon {
+  display: none;
+}
+
+.play-icon.show, .pause-icon.show {
+  display: block;
+}
+
+.export-button {
+  background: var(--tertiary-color);
+  color: var(--bg-color);
+  border: 2px solid transparent; /* Prepare for gradient border */
+  background-clip: padding-box;
+  background-image: linear-gradient(var(--tertiary-color), var(--tertiary-color)), var(--border-gradient);
+  padding: 8px 15px; /* Keep padding */
+  border-radius: 20px; /* Keep radius */
+  cursor: pointer;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 600; /* Slightly bolder */
+  font-size: 12px;
+  transition: all 0.3s ease;
+  /* margin-left: 10px; Removed, using gap in .header-controls */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.export-button:hover {
+  background: var(--primary-color); /* Change background on hover */
+  background-image: linear-gradient(var(--primary-color), var(--primary-color)), var(--border-gradient); /* Update gradient bg */
+  color: var(--bg-color);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3), 0 0 15px 4px var(--ambient-glow-primary); /* Enhanced shadow + glow */
+  transform: translateY(-1px); /* Subtle lift */
+}
+
+.sequencer {
+  flex: 0 1 320px; /* Slightly wider base */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem; /* Increase gap */
+  margin: 0;
+  padding: 1.5rem 1rem; /* Adjust padding */
+  background: var(--control-bg); /* Add background */
+  border-radius: 15px; /* Match header */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2); /* Add subtle shadow */
+}
+
+.circle-container {
+  width: min(200px, 35vw); /* Increase size slightly */
+  height: min(200px, 35vw);
+  aspect-ratio: 1;
+  margin: 0 auto 1rem auto; /* Add bottom margin */
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transform: translateZ(0);
+}
+
+.circle {
+  width: 100%;
+  height: 100%;
+  border: none; /* Keep border none, outer glow is handled by ::before */
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.3s ease;
+  background: radial-gradient( /* Update gradient with new colors */
+    circle at center,
+    rgba(13, 17, 23, 0.95) 0%, /* Darker center */
+    rgba(22, 27, 34, 0.9) 40%, /* Mid tone */
+    rgba(30, 36, 44, 0.85) 80%, /* Lighter edge */
+    rgba(0, 196, 204, 0.1) 100% /* Subtle primary color edge */
+  );
+  backdrop-filter: blur(8px); /* Slightly reduce blur */
+  box-shadow: /* Update shadows with new colors */
+    0 0 50px var(--ambient-glow-primary),
+    inset 0 0 35px var(--ambient-glow-secondary);
+  animation: pulseMain 6s ease-in-out infinite;
+}
+
+.circle::before {
+  content: '';
+  position: absolute;
+  inset: -3px; /* Keep inset */
+  background: var(--border-gradient); /* Use border gradient variable */
+  border-radius: 50%;
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+          mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  padding: 3px; /* Keep padding */
+  animation: spinGradient 12s linear infinite;
+  opacity: 0.9; /* Slightly increase opacity */
+  filter: blur(1px); /* Add subtle blur to the gradient border */
+}
+
+.circle-inner-ring,
+.circle-middle-ring,
+.circle-outer-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transform-origin: center;
+}
+
+.circle-inner-ring {
+  inset: 20%;
+  border-image: linear-gradient(45deg, var(--primary-color), transparent) 1; /* Use primary color */
+  opacity: 0.7;
+  animation: spinCounterClockwise 15s linear infinite;
+}
+
+.circle-middle-ring {
+  inset: 35%;
+  border-image: linear-gradient(135deg, var(--secondary-color), transparent) 1; /* Use secondary color */
+  opacity: 0.7;
+  animation: spin 10s linear infinite;
+}
+
+.circle-outer-ring {
+  inset: 50%;
+  border-image: linear-gradient(225deg, var(--tertiary-color), transparent) 1; /* Use tertiary color */
+  opacity: 0.7;
+  animation: spinCounterClockwise 20s linear infinite;
+}
+
+.dot {
+  width: 20px;
+  height: 20px;
+  background: var(--secondary-color); /* Use solid secondary color for inactive */
+  border-radius: 50%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: /* Use secondary ambient glow */
+    0 0 15px var(--ambient-glow-secondary),
+    inset 0 0 8px rgba(255,255,255,0.6); /* Slightly reduce inset brightness */
+  z-index: 2; /* Ensure dots stay above the visualizer */
+}
+
+.dot::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  background: conic-gradient( /* Use primary/secondary gradient */
+    from 45deg,
+    var(--primary-color),
+    var(--secondary-color),
+    var(--primary-color)
+  );
+  border-radius: inherit;
+  animation: spinGradient 6s linear infinite;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  filter: blur(1px); /* Blur the hover glow */
+}
+
+.dot:hover::before {
+  opacity: 1; /* Show gradient on hover */
+}
+
+.dot:hover {
+  transform: translate(-50%, -50%) scale(1.2);
+  box-shadow: /* Use secondary ambient glow */
+    0 0 25px var(--ambient-glow-secondary),
+    inset 0 0 12px rgba(255,255,255,0.9);
+}
+
+.dot.active {
+  background: var(--primary-color); /* Use solid primary color for active */
+  box-shadow: /* Use primary ambient glow */
+    0 0 35px var(--ambient-glow-primary),
+    0 0 50px var(--ambient-glow-primary),
+    inset 0 0 20px rgba(255,255,255,0.9);
+  animation: activePulse 2s ease-in-out infinite;
+}
+
+.spectrogram {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;  
+  display: block;
+  margin: auto;
+  background: transparent;
+}
+
+/* Container for sequencer-specific controls (Sound, Note, Divisions, Volume) */
+/* This is the .controls div inside each .sequencer */
+.sequencer .controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* Adjust gap between controls */
+  width: 100%;
+  padding: 1rem; /* Add padding around controls */
+  margin-top: 1rem; /* Space above controls */
+  border-top: 1px solid rgba(255, 255, 255, 0.1); /* Separator line */
+  /* Remove styles inherited from the global .controls rule if necessary */
+  align-items: stretch; /* Override global .controls align-items: flex-end */
+  min-width: unset; /* Override global .controls min-width */
+  background: none; /* Override global .controls background */
+  border-radius: 0; /* Override global .controls border-radius */
+  box-shadow: none; /* Override global .controls box-shadow */
+}
+
+
+/* Grid layout for individual control rows within sequencer */
+.control-group,
+.volume-control {
+  display: grid;
+  grid-template-columns: 80px 1fr; /* Fixed label width, input takes rest */
+  align-items: center; /* Vertically center items in the row */
+  gap: 10px; /* Gap between label and input */
+  width: 100%;
+}
+
+/* Reset margins/padding/borders potentially inherited or set previously for volume */
+.volume-control {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+
+/* Styling for labels within the grid */
+.control-group label,
+.volume-control label {
+  justify-self: start; /* Align label text to the start of its cell */
+  margin-bottom: 0; /* Override general label margin */
+  min-width: unset; /* Remove previous min-width if any */
+  /* Inherit general label styles (color, font, etc.) */
+  font-size: 12px; /* Consistent font size */
+  color: var(--tertiary-color);
+  display: inline; /* Override general label display: block */
+}
+
+/* Center selects/inputs horizontally within their grid cell */
+.control-group select,
+.control-group input[type="number"] {
+   justify-self: center;
+   width: 100px; /* Set a consistent width */
+   /* Inherit general select/input styles */
+}
+
+/* Style range input within the grid */
+.volume-control input[type="range"] {
+  width: 100%; /* Slider takes full width of its cell */
+  max-width: 150px; /* Optional: constrain max width */
+  justify-self: center; /* Center slider horizontally */
+  height: 4px; /* Keep track height small */
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 150px; /* Default width, overridden in groups */
+  height: 4px; /* Reduce track height */
+  background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%); /* Keep gradient for track */
+  border-radius: 2px; /* Adjust radius */
+  border: 1px solid rgba(255, 255, 255, 0.1); /* Add subtle border to track */
+  cursor: pointer; /* Add pointer cursor to track */
+}
+
+/* Update the slider thumb styles */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px; /* Reduce thumb size */
+  height: 14px; /* Reduce thumb size */
+  border-radius: 50%;
+  background: var(--primary-color); /* Use primary color */
+  border: 2px solid var(--tertiary-color); /* Keep tertiary border */
+  box-shadow: 0 0 8px var(--ambient-glow-primary); /* Reduce glow slightly */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: -5px; /* Adjust vertical alignment for smaller thumb */
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 15px 4px var(--ambient-glow-primary); /* Enhance glow on hover */
+}
+
+/* For Firefox */
+input[type="range"]::-moz-range-thumb {
+  width: 14px; /* Reduce thumb size */
+  height: 14px; /* Reduce thumb size */
+  border-radius: 50%;
+  background: var(--primary-color); /* Use primary color */
+  border: 2px solid var(--tertiary-color); /* Keep tertiary border */
+  box-shadow: 0 0 8px var(--ambient-glow-primary); /* Reduce glow slightly */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none; /* Firefox might need border reset */
+}
+input[type="range"]::-moz-range-thumb:hover {
+  box-shadow: 0 0 15px 4px var(--ambient-glow-primary); /* Enhance glow on hover */
+}
+
+/* For Edge/IE */
+input[type="range"]::-ms-thumb {
+  width: 14px; /* Reduce thumb size */
+  height: 14px; /* Reduce thumb size */
+  border-radius: 50%;
+  background: var(--primary-color); /* Use primary color */
+  border: 2px solid var(--tertiary-color); /* Keep tertiary border */
+  box-shadow: 0 0 8px var(--ambient-glow-primary); /* Reduce glow slightly */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0; /* IE/Edge might need margin reset */
+}
+input[type="range"]::-ms-thumb:hover {
+  box-shadow: 0 0 15px 4px var(--ambient-glow-primary); /* Enhance glow on hover */
+}
+
+@keyframes pulseMain {
+  0%, 100% {
+    box-shadow: 
+      0 0 40px rgba(0,255,240,0.15),
+      inset 0 0 30px rgba(255,52,179,0.1);
+    filter: brightness(1);
+    box-shadow: /* Update shadows with new colors */
+      0 0 50px var(--ambient-glow-primary),
+      inset 0 0 35px var(--ambient-glow-secondary);
+  }
+  50% {
+    box-shadow: /* Update shadows with new colors */
+      0 0 70px var(--ambient-glow-primary), /* Slightly larger glow */
+      inset 0 0 50px var(--ambient-glow-secondary); /* Slightly larger inset glow */
+    filter: brightness(1.2); /* Slightly reduce brightness peak */
+  }
+}
+
+@keyframes spinGradient {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes spinCounterClockwise {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes activePulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: /* Use primary ambient glow */
+      0 0 35px var(--ambient-glow-primary),
+      0 0 50px var(--ambient-glow-primary),
+      inset 0 0 20px rgba(255,255,255,0.9);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.3);
+    box-shadow: /* Use primary ambient glow */
+      0 0 45px var(--ambient-glow-primary),
+      0 0 60px var(--ambient-glow-primary),
+      inset 0 0 25px rgba(255,255,255,1);
+  }
+}
+
+.orbiting-circle {
+  width: 8px;
+  height: 8px;
+  position: absolute;
+  left: 50%;  
+  top: 50%;   
+  transform-origin: 0 0; 
+  border-radius: 50%;
+  background: radial-gradient( /* Use primary/secondary gradient */
+    circle at center,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  opacity: 0.7;
+  transition: all 0.4s ease;
+  filter: blur(1px);
+  box-shadow: 0 0 15px var(--ambient-glow-primary); /* Use primary glow */
+}
+
+.controls { /* Container for global sliders/multipliers */
+  flex: 1 1 auto; /* Allow controls to grow and shrink */
+  display: flex;
+  flex-direction: column; /* Stack controls vertically */
+  align-items: flex-end; /* Align items (slider groups) to the right */
+  gap: 1.5rem; /* Increase gap */
+  padding: 1.5rem; /* Increase padding */
+  /* Removed previous padding adjustment */
+  background: var(--control-bg); /* Use control background */
+  border-radius: 15px; /* Match header/sequencer */
+  min-width: 250px; /* Minimum width */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2); /* Add subtle shadow */
+}
+
+label { /* General label styling */
+  color: var(--tertiary-color);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: 'Orbitron', sans-serif;
+  display: block; /* Ensure labels take block space */
+  margin-bottom: 4px; /* Add space below labels */
+}
+
+select, input[type="number"] { /* Exclude #bpm as it's styled separately */
+  color: var(--primary-color);
+  background: var(--select-bg);
+  border: 2px solid transparent; /* Prepare for gradient border */
+  background-clip: padding-box;
+  background-image: linear-gradient(var(--select-bg), var(--select-bg)), var(--border-gradient);
+  padding: 8px 12px; /* Keep padding */
+  border-radius: 6px; /* Slightly rounder */
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+select:hover, input[type="number"]:hover,
+select:focus, input[type="number"]:focus {
+  outline: none; /* Remove default outline */
+  box-shadow: 0 0 12px 3px var(--ambient-glow-secondary); /* Ambient glow on hover/focus */
+}
+
+.slider-container {
+  /* flex: 0 0 auto; Removed */
+  /* width: 100%; Removed */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  /* min-width: 200px; Removed */
+  flex: 1 1 auto; /* Allow slider container to grow and shrink within header controls */
+  align-items: flex-end; /* Align items (slider groups) to the right */
+  /* width: 100%; Removed - let flexbox manage width */
+}
+
+.slider-group {
+  display: flex;
+  align-items: center; /* Align label, slider, value horizontally */
+  gap: 10px; /* Adjust gap */
+  /* width: 100%; Removed, handled by flex */
+  flex: 1 1 auto; /* Allow slider group to take up available space */
+  /* justify-content: flex-end; Removed - use natural flow */
+  width: 100%; /* Make group take full width of slider-container */
+}
+
+.slider-group label {
+  /* flex: 0 0 120px; Removed fixed width, let content determine width */
+  margin-bottom: 0; /* Override general label margin */
+  text-align: left; /* Align label text left */
+  white-space: nowrap; /* Keep nowrap to keep label on one line */
+  flex: 0 0 auto; /* Shrink to fit content */
+  /* margin-right: auto; Removed */
+}
+
+.slider-group input[type="range"] {
+  /* flex: 0 1 auto; Removed - let max-width control size */
+  width: 100px; /* Reduce default width */
+  max-width: 120px; /* Reduce max width */
+  margin-left: 0; /* Remove margin-left: auto */
+  flex-shrink: 1; /* Allow shrinking */
+}
+
+.slider-group span {
+  flex: 0 0 40px; /* Fixed width for value */
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+.notification {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 15px 25px;
+  border-radius: 8px;
+  color: white;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  z-index: 1000; /* Ensure notification is on top */
+}
+
+.notification.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.notification.success {
+  background-color: var(--success-color);
+  color: #000; /* Use black text for better contrast on bright success color */
+  text-shadow: 0 0 5px rgba(255,255,255,0.5);
+}
+
+.notification.error {
+  background-color: var(--error-color);
+  color: #000; /* Use black text for better contrast on bright error color */
+  text-shadow: 0 0 5px rgba(255,255,255,0.5);
+}
+
+.bar-multiplier {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* margin-left: 15px; Removed, using gap in .header-controls */
+  /* Align with slider groups */
+  flex: 0 0 auto; /* Prevent shrinking */
+  /* justify-content: flex-end; Removed - this was affecting the bar-multiplier block alignment, not its internal items */
+}
+
+.bar-multiplier label {
+  /* flex: 0 0 120px; Removed fixed width */
+  text-align: left; /* Match slider label alignment */
+  white-space: nowrap;
+  /* Removed overflow/text-overflow to ensure full visibility */
+  font-size: 14px;
+  font-family: 'Orbitron', sans-serif;
+  color: var(--tertiary-color); /* Keep tertiary */
+  margin-bottom: 0; /* Override general label margin */
+  flex: 0 0 auto; /* Shrink to fit content */
+}
+
+/* Remove duplicate .bar-multiplier label rule */
+
+.bar-multiplier select {
+  width: 50px;
+  color: var(--primary-color);
+  background: var(--select-bg);
+  border: 1px solid rgba(0, 255, 240, 0.3);
+  padding: 6px; /* Adjust padding for border */
+  font-size: 16px;
+  border-radius: 6px; /* Slightly rounder */
+  font-family: 'Orbitron', sans-serif;
+  transition: all 0.3s ease;
+  border: 2px solid transparent; /* Prepare for gradient border */
+  background-clip: padding-box;
+  background-image: linear-gradient(var(--select-bg), var(--select-bg)), var(--border-gradient);
+}
+
+.bar-multiplier select:focus {
+  outline: none; /* Remove default outline */
+  box-shadow: 0 0 12px 3px var(--ambient-glow-primary); /* Ambient glow */
+}
+
+/* Advanced Controls Collapse Toggle */
+.advanced-controls {
+  position: absolute;
+  top: 100%;
+  right: 0; /* align to right edge of button container */
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 0.5rem 0 0;
+  background: var(--control-bg);
+  padding: 1rem 1.5rem;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+.advanced-controls.collapsed {
+  display: none;
+}
+
+@media (max-width: 1100px) { /* Adjust breakpoint */
+  .container {
+    gap: 1.5rem;
+    padding: 1rem;
+    flex-direction: column; /* Stack sequencers/controls below header */
+    align-items: center; /* Center items when stacked */
+  }
+
+  .sequencer {
+    flex-basis: auto; /* Allow sequencers to take natural width */
+    width: 90%; /* Limit width */
+    max-width: 400px; /* Max width when stacked */
+  }
+
+  .controls {
+    width: 90%; /* Limit width */
+    max-width: 400px; /* Max width when stacked */
+  }
+
+  .header {
+     margin-bottom: 1.5rem;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column; /* Stack header items */
+    align-items: center; /* Center header items */
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  .header-controls {
+    width: 100%;
+    justify-content: flex-end; /* Align header controls to the right */
+    gap: 0.75rem;
+  }
+
+  .bpm-control {
+    /* width: 100%; Removed, let flexbox handle */
+    justify-content: center; /* Center BPM controls */
+  }
+
+  .sequencer, .controls {
+     width: 95%;
+     max-width: none; /* Remove max-width */
+     padding: 1rem;
+  }
+
+  .slider-group label {
+    /* flex-basis: 100px; Removed - allow label width to be auto */
+  }
+
+  .bar-multiplier label {
+    /* flex-basis: 100px; Removed - allow label width to be auto */
+  }
+
+  .circle-container {
+    width: min(180px, 50vw); /* Adjust circle size */
+    height: min(180px, 50vw);
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px; /* Adjust base font size */
+  }
+  .container {
+    width: 100%;
+    padding: 0.5rem;
+    margin: 0.5rem auto;
+    gap: 1rem;
+  }
+
+  .header {
+    padding: 0.75rem;
+    gap: 0.75rem;
+  }
+
+  h1 {
+    font-size: 22px; /* Reduce heading size */
+  }
+
+  .sequencer, .controls {
+     width: 100%;
+     padding: 0.75rem;
+     border-radius: 10px;
+  }
+
+  .circle-container {
+    width: min(160px, 60vw); /* Adjust circle size */
+    height: min(160px, 60vw);
+  }
+
+  .dot {
+    width: 16px; /* Smaller dots */
+    height: 16px;
+  }
+
+  .slider-group {
+    /* flex-direction: column; Removed - keep row direction for horizontal layout */
+    align-items: center; /* Keep items vertically centered */
+    /* justify-content: flex-end; Removed for column direction */
+  }
+  .slider-group label {
+    text-align: left;
+    flex-basis: auto;
+    /* margin-right: 0; Removed - no longer needed if not column */
+  }
+  .slider-group input[type="range"] {
+    width: 100%;
+    max-width: none; /* Remove max-width on small screens */
+    flex-shrink: 1; /* Allow shrinking */
+  }
+  .slider-group span {
+     text-align: right; /* Align value to the right */
+     flex-basis: auto; /* Let content determine width */
+  }
+
+  .bar-multiplier {
+    /* flex-direction: column; Removed - keep row direction */
+    align-items: center; /* Keep items vertically centered */
+  }
+   .bar-multiplier label {
+    text-align: left;
+    flex-basis: auto;
+  }
+
+  .notification {
+    bottom: 10px;
+    right: 10px;
+    padding: 10px 15px;
+    font-size: 12px;
+  }
+}
